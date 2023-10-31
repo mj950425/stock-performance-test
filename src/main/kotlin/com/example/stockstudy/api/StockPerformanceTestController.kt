@@ -1,7 +1,9 @@
 package com.example.stockstudy.api
 
 import com.example.stockstudy.model.ServiceTypeRequest
+import com.example.stockstudy.service.NormalizedStockService
 import com.example.stockstudy.service.StockPerformanceTestService
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -13,10 +15,11 @@ import kotlin.system.measureTimeMillis
 @RestController
 @RequestMapping("/test/")
 class StockPerformanceTestController(
-    val stockServices: List<StockPerformanceTestService>
+    val stockServices: List<StockPerformanceTestService>,
+    val normalizedStockService: NormalizedStockService
 ) {
     @PostMapping
-    fun test(@RequestBody request: ServiceTypeRequest): Long {
+    fun testUseStockPerformance(@RequestBody request: ServiceTypeRequest): Long {
         val service = stockServices.find { it.supports(request.type) }!!
 
         val executor = Executors.newFixedThreadPool(10)
@@ -29,6 +32,13 @@ class StockPerformanceTestController(
         return measureTimeMillis {
             executor.invokeAll(tasks)
             executor.shutdown()
+        }
+    }
+
+    @GetMapping
+    fun testNormalizedStockPerformance(@RequestBody request: ServiceTypeRequest): Long {
+        return measureTimeMillis {
+            normalizedStockService.findByStockIdAndUsingDate()
         }
     }
 }
