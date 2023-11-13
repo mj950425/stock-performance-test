@@ -10,7 +10,6 @@ import jakarta.persistence.EntityManager
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 @Service
 class DataSetupService(
@@ -27,7 +26,7 @@ class DataSetupService(
         val stocks = mutableListOf<NormalizedStock>()
         val seasons = mutableListOf<NormalizedSeason>()
 
-        for (stockBundleId in 1L..100) {
+        for (stockBundleId in 101L..500L) {
             for (stockCount in 1L..2L) {
 
                 val stock = NormalizedStock(
@@ -38,7 +37,7 @@ class DataSetupService(
 
                 stocks.add(stock)
 
-                for (day in 1L..730L) {
+                for (day in 1L + (stockCount - 1) * 730..730L + (stockCount - 1) * 730) {
                     val targetDate = baseDate.plusDays(day)
                     val normalizedSeason = NormalizedSeason(
                         startDate = targetDate,
@@ -68,22 +67,23 @@ class DataSetupService(
 
     @Transactional
     fun setUpUnNormalizedStock() {
-        val baseDate = LocalDateTime.now()
+        val baseDate = LocalDate.now()
         val stocks = mutableListOf<UnNormalizedStock>()
 
-        for (stockBundleId in 1L..100) {
+        for (stockBundleId in 101L..500) {
             for (stockCount in 1L..2L) {
                 val seasons = mutableListOf<String>()
 
-                for (day in 1L..730L) {
+                for (day in 1L + (stockCount - 1) * 730..730L + (stockCount - 1) * 730) {
                     val targetDate = baseDate.plusDays(day)
                     seasons.add("""{"from": "$targetDate", "to": "$targetDate"}""")
                 }
+
                 val result = seasons.joinToString(separator = ", ", prefix = "[", postfix = "]")
 
                 stocks.add(UnNormalizedStock(seasons = result, stockBundleId = stockBundleId))
 
-                if (stockBundleId % 100 == 0L && stockCount == 2L) {
+                if (stockBundleId % 10 == 0L && stockCount == 2L) {
                     println("[${stockBundleId * 2 * 730}] stock saved...")
 
                     unNormalizedStockRepository.saveAll(stocks)
