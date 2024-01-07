@@ -10,9 +10,9 @@ import org.springframework.stereotype.Service
  * redis가 메모리 기반의 디비이기 때문에, 정확한 이력을 rdb에 남기기 위해서는 추가 작업이 필요할 수 있습니다.
  */
 @Service
-class RedisWithLuaScriptService(
+class RedisWithLuaScriptDeductService(
     val redissonClient: RedissonClient
-) : StockPerformanceTestService {
+) : StockDeductService {
     private val stockKey = "stock:remain_quantity"
     private val luaScript = """
     local remainQuantityStr = redis.call('GET', KEYS[1])
@@ -32,7 +32,7 @@ class RedisWithLuaScriptService(
         return ServiceType.LUA == serviceType
     }
 
-    override fun test() {
+    override fun deduct(id: Long) {
         val result = redissonClient.script.eval<Any>(
             RScript.Mode.READ_WRITE,
             luaScript,

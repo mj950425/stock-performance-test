@@ -2,7 +2,7 @@ package com.example.stockstudy.service
 
 import com.example.stockstudy.model.ServiceType
 
-interface StockPerformanceTestService {
+interface StockDeductService {
     fun supports(serviceType: ServiceType): Boolean
-    fun test()
+    fun deduct(id: Long)
 }

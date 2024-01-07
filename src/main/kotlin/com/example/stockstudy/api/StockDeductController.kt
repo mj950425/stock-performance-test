@@ -1,9 +1,8 @@
 package com.example.stockstudy.api
 
-import com.example.stockstudy.model.ServiceTypeRequest
-import com.example.stockstudy.service.NormalizedStockService
-import com.example.stockstudy.service.StockPerformanceTestService
-import org.springframework.web.bind.annotation.GetMapping
+import com.example.stockstudy.api.dto.ServiceTypeRequest
+import com.example.stockstudy.service.StockDeductService
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -13,20 +12,19 @@ import java.util.concurrent.Executors
 import kotlin.system.measureTimeMillis
 
 @RestController
-@RequestMapping("/test/")
-class StockPerformanceTestController(
-    val stockServices: List<StockPerformanceTestService>,
-    val normalizedStockService: NormalizedStockService
+@RequestMapping("/deduct")
+class StockDeductController(
+    val stockDeductServices: List<StockDeductService>,
 ) {
     @PostMapping
     fun testUseStockPerformance(@RequestBody request: ServiceTypeRequest): Long {
-        val service = stockServices.find { it.supports(request.type) }!!
+        val service = stockDeductServices.find { it.supports(request.type) }!!
 
         val executor = Executors.newFixedThreadPool(10)
         val tasks = mutableListOf<Callable<Unit>>()
         for (i: Int in 1..1000) {
             tasks.add(Callable {
-                service.test()
+                service.deduct(1)
             })
         }
         return measureTimeMillis {
@@ -35,10 +33,13 @@ class StockPerformanceTestController(
         }
     }
 
-    @GetMapping
-    fun testNormalizedStockPerformance(@RequestBody request: ServiceTypeRequest): Long {
-        return measureTimeMillis {
-            normalizedStockService.findByStockIdAndUsingDate()
-        }
+    @PostMapping("/{id}")
+    fun deduct(
+        @RequestBody request: ServiceTypeRequest,
+        @PathVariable id: Long
+    ) {
+        val service = stockDeductServices.find { it.supports(request.type) }!!
+
+        service.deduct(id)
     }
 }

@@ -9,16 +9,16 @@ import org.springframework.stereotype.Service
  * redis가 메모리 기반의 디비이기 때문에, 정확한 이력을 rdb에 남기기 위해서는 추가 작업이 필요할 수 있습니다.
  */
 @Service
-class RedissonAtomicCommandService(
+class RedissonAtomicCommandDeductService(
     val redissonClient: RedissonClient
-) : StockPerformanceTestService {
+) : StockDeductService {
     private val stockKey = "stock:remain_quantity"
 
     override fun supports(serviceType: ServiceType): Boolean {
         return ServiceType.REDISSON_ATOMIC_COMMAND == serviceType
     }
 
-    override fun test() {
+    override fun deduct(id: Long) {
         val remainQuantity = redissonClient.getAtomicLong(stockKey)
 
         while (true) {

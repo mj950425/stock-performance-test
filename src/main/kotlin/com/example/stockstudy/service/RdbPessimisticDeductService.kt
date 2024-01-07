@@ -8,15 +8,14 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
-class RdbPessimisticService(
+class RdbPessimisticDeductService(
     val entityManager: EntityManager
-) : StockPerformanceTestService {
+) : StockDeductService {
 
     @Transactional
-    override fun test() {
-        val stockId = 1
-        val lockedStock = entityManager.find(Stock::class.java, stockId, LockModeType.PESSIMISTIC_WRITE)
-        lockedStock.useStock()
+    override fun deduct(id: Long) {
+        val lockedStock = entityManager.find(Stock::class.java, id, LockModeType.PESSIMISTIC_WRITE)
+        lockedStock.deduct()
     }
 
     override fun supports(serviceType: ServiceType): Boolean {

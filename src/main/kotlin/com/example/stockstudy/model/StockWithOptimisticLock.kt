@@ -12,17 +12,12 @@ class StockWithOptimisticLock(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     val id: Long? = null,
-    @Column(name = "registered_quantity")
-    val registeredQuantity: Long,
-    @Column(name = "used_quantity")
-    var usedQuantity: Long,
     @Column(name = "remain_quantity")
     var remainQuantity: Long,
     @Version
     var version: Int = 0
 ) {
-    fun useStock() {
-        usedQuantity += 1
+    fun deduct() {
         remainQuantity -= 1
     }
 }
